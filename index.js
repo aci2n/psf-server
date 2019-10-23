@@ -104,14 +104,14 @@ const requestResultSelection = (function() {
 				if (answer === "") answer = "1";
 				const selection = results[parseInt(answer) - 1];
 
-				if (!selection) {
+				if (selection) {
+					console.log(`executing: open ${selection.url}`);
+					spawn("open", [selection.url]);
+				} else {
 					console.error(`Invalid selection: ${answer}`);
-					prompt();
-					return;
 				}
 
-				console.log(`executing: open ${selection.url}`);
-				spawn("open", [selection.url]);
+				prompt();
 			});
 		}
     
