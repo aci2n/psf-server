@@ -3,6 +3,8 @@ const https = require("https");
 const process = require("process");
 const spawn = require("child_process").spawn;
 const readline = require("readline");
+const fs = require("fs");
+const os = require("os");
 
 function readStream(stream) {
 	return new Promise((resolve, reject) => {
@@ -87,17 +89,27 @@ function parseResults(response) {
 	return results;
 }
 
+function printResults(results) {
+	const fd = fs.openSync(os.homedir() + "/.local/tracks.psf", "w");
+	let buffer = "";
+
+	for (let i = results.length - 1; i >= 0; i--) {
+		const result = results[i];
+		console.log(`${i + 1}. ${result.url}\n\t ${result.description}`);
+		buffer = result.url + "\n" + buffer;
+	}
+
+	fs.writeFileSync(fd, buffer);
+	fs.closeSync(fd);
+}
 const requestResultSelection = (function() {
 	let reader;
 
 	return function(results, state) {
 		if (reader) reader.close(); 
 		reader = readline.createInterface({input: process.stdin, output: process.stdout});
-
-		for (let i = results.length - 1; i >= 0; i--) {
-			const result = results[i];
-			console.log(`${i + 1}. ${result.url}\n\t ${result.description}`);
-		}
+		
+		printResults(results);
     
 		function prompt() {
 			reader.question(`Choose a result (${state.artist} - ${state.track}): `, answer => {
