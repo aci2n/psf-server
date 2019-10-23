@@ -101,6 +101,7 @@ const requestResultSelection = (function() {
     
 		function prompt() {
 			reader.question(`Choose a result (${state.artist} - ${state.track}): `, answer => {
+				if (answer === "") answer = "1";
 				const selection = results[parseInt(answer) - 1];
 
 				if (!selection) {
