@@ -28,18 +28,35 @@ function makeRequest(options) {
 	});
 }
 
-function processMessage(message) {
+function parseMessage(message) {
 	const state = message.split("\n").reduce((map, line) => {
 		const tokens = line.split("=");
 		map[tokens[0]] = tokens[1];
 		return map;
 	}, {});
-    
-	if (!state.artist || !state.track) {
+
+	if (!("track" in state && "artist" in state && "album" in state && "playing" in state)) {
+		return null;
+	}
+
+	state.playing = state.playing === "true";
+
+	return state;
+}
+
+function processMessage(message) {
+	const state = parseMessage(message);
+
+	if (!state) {
 		console.error("invalid message format");
 		return;
 	}
-    
+
+	if (!state.playing) {
+		console.log(`stopped playing: ${state.artist} - ${state.track}`);
+		return;
+	}
+
 	const path = "/lite?q=" + encodeURIComponent(`歌詞 ${state.artist} ${state.track}`);
 	console.log(`making ddg request: https://duckduckgo.com${path}`);
     
@@ -103,7 +120,7 @@ const requestResultSelection = (function() {
 
 function startServer(port) {
 	http.createServer((request, response) => {
-		console.log(`got request, content-length: ${request.headers["content-length"]}`);
+		console.log(`\ngot request, content-length: ${request.headers["content-length"]}`);
 
 		if (request.method !== "POST") {
 			response.writeHead(405);
