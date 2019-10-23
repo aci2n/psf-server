@@ -49,7 +49,7 @@ function processMessage(message) {
 	}).then(response => {
 		const results = parseResults(response);
 		console.log(`got ${results.length} ddg results`);
-		requestResultSelection(results);
+		requestResultSelection(results, state);
 	}).catch(error => {
 		console.error(`ddg error: ${error}`);
 	});
@@ -73,7 +73,7 @@ function parseResults(response) {
 const requestResultSelection = (function() {
 	let reader;
 
-	return function(results) {
+	return function(results, state) {
 		if (reader) reader.close(); 
 		reader = readline.createInterface({input: process.stdin, output: process.stdout});
 
@@ -83,7 +83,7 @@ const requestResultSelection = (function() {
 		}
     
 		function prompt() {
-			reader.question("Choose a result: ", answer => {
+			reader.question(`Choose a result (${state.artist} - ${state.track}): `, answer => {
 				const selection = results[parseInt(answer) - 1];
 
 				if (!selection) {
