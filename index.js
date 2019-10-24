@@ -102,6 +102,23 @@ function printResults(results) {
 	fs.writeFileSync(fd, buffer);
 	fs.closeSync(fd);
 }
+
+function open(url) {
+	console.log(`opening ${url} in browser`);
+	
+	switch (process.platform) {
+	case "linux":
+		spawn("xdg-open", [url]);
+		break;
+	case "darwin":
+		spawn("open", [url]);
+		break;
+	default:
+		console.error(`cannot open ${url} for plaftorm: ${process.platform}`);
+		break;
+	}
+}
+
 const requestResultSelection = (function() {
 	let reader;
 
@@ -117,8 +134,7 @@ const requestResultSelection = (function() {
 				const selection = results[parseInt(answer) - 1];
 
 				if (selection) {
-					console.log(`executing: open ${selection.url}`);
-					spawn("open", [selection.url]);
+					open(selection.url);
 				} else {
 					console.error(`Invalid selection: ${answer}`);
 				}
