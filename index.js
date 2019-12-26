@@ -151,8 +151,11 @@ function startServer(port) {
 	http.createServer((request, response) => {
 		console.log(`\ngot request, content-length: ${request.headers["content-length"]}`);
 
+		response.setHeader("Access-Control-Allow-Origin", "*");
+
 		if (request.method !== "POST") {
 			response.writeHead(405);
+			response.end();
 			return;
 		}
     
